@@ -95,7 +95,7 @@ while(!Thread.interrupted()){
 					(printData[8])+"\r\n Euler= "+
 					(printData[9])+" , "+
 					(printData[10])+" , "+(printData[11])	
-	TransformNR newLoc = new TransformNR(0,0,0,new RotationNR(	printData[9],	-printData[11],	printData[10]	))
+	TransformNR newLoc = new TransformNR(-printData[0],-printData[1],-printData[2],new RotationNR(	printData[9],	-printData[11],	printData[10]	))
 			Platform.runLater( {
 						TransformFactory.nrToAffine(newLoc,manip);
 					}
