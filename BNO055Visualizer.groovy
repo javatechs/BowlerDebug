@@ -59,7 +59,7 @@ public class IMUDevice extends NonBowlerDevice{
 
 def myRobot = DeviceManager.getSpecificDevice( "ImuDevice",{
 	//If the device does not exist, prompt for the connection
-	HashSet<InetAddress> addresses = UDPSimplePacketComs.getAllAddresses("IMUVisualizer");
+	HashSet<InetAddress> addresses = UDPSimplePacketComs.getAllAddresses("IMU-Team21");
 	if (addresses.size() < 1) {
 	  System.out.println("No IMU controllers found named ");
 	  return null;
