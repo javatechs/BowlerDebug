@@ -1,23 +1,33 @@
 import javafx.scene.transform.Affine;
 import javafx.application.Platform;
 
+// call another script that will create the robot object and return it. 
 def myRobot = ScriptingEngine.gitScriptRun(
             "https://gist.github.com/fd1602bce81ca9096db3f28648b3d312.git", // git location of the library
             "LoadIMUServer.groovy" , // file to load
-            // Parameters passed to the funcetion
+            // Pass the name of the device. This needs to match what was written to the device in Arduino
             ["IMU-Team21"]
             )
+// If no robot exists, return and do nothing
 if(myRobot==null)
 	return;
-
+	
+// Create a simple object that will look different when moved to various angles. 
 CSG vitaminFromScript = Vitamins.get("hobbyServo","Dynam");
+// add the object to the 3d window. This can also be done by returning the object.
 BowlerStudioController.setCsg([vitaminFromScript])
+
+// Affine is a frame transformation object used to place objects in the 3d window. 
+// Writing new values will trigger a re-render of the screen. 
 Affine manip= vitaminFromScript.getManipulator()
 
+// Data vector object, this object will have the latest data written into it by the stack in another thread
 double [] printData = myRobot.getImuData()
 try{
+	// Waiting for the user to hit the stop button
 	while(!Thread.interrupted()){
-		Thread.sleep(20)
+		
+		Thread.sleep(20)//UI thread runs at 16ms, we should wait at least that long before updating.
 		println System.currentTimeMillis()+"\r\n Acceleration= "+(printData[0])+" , "+(printData[1])+" , "+
 						(printData[2])+"\r\n Gyro= "+
 						(printData[3])+" , "+
@@ -31,17 +41,18 @@ try{
 		double x=0;
 		double y=0;
 		double z=0;
+		// If you would like to visualize the accelorameter then uncomment the next 3 lines
 		//x=-printData[0]
 		//y=-printData[1]
 		//z=-printData[2]
+		// Conver from Euler angles to frame transformation
 		TransformNR newLoc = new TransformNR(x,y,z,new RotationNR(	printData[9],	-printData[11],	printData[10]	))
-				Platform.runLater( {
-							TransformFactory.nrToAffine(newLoc,manip);
-						}
-					);
+		// copy frame transformation into the object manipulatyor
+		// Platform.runlater uses the UI thread to do the write to prevent UI lockup
+		Platform.runLater( {TransformFactory.nrToAffine(newLoc,manip)})
 	}
 }catch(Throwable t){
 	t.printStackTrace(System.out)
 }
-
+// Disconnect the IMU device on exit
 myRobot.disconnect()
