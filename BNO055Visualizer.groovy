@@ -59,7 +59,7 @@ public class IMUDevice extends NonBowlerDevice{
 
 def myRobot = DeviceManager.getSpecificDevice( "ImuDevice",{
 	//If the device does not exist, prompt for the connection
-	HashSet<InetAddress> addresses = UDPSimplePacketComs.getAllAddresses("IMU-Team21");
+	HashSet<InetAddress> addresses = UDPSimplePacketComs.getAllAddresses("IMU-Team21 ");
 	if (addresses.size() < 1) {
 	  System.out.println("No IMU controllers found named ");
 	  return null;
@@ -82,7 +82,7 @@ BowlerStudioController.setCsg([vitaminFromScript])
 Affine manip= vitaminFromScript.getManipulator()
 
 double [] printData = myRobot.getImuData()
-
+try{
 while(!Thread.interrupted()){
 	Thread.sleep(20)
 	println System.currentTimeMillis()+"\r\n Acceleration= "+(printData[0])+" , "+(printData[1])+" , "+
@@ -107,5 +107,6 @@ while(!Thread.interrupted()){
 					}
 				);
 }
+}catch(Throwable t){}
 
-robots.collect{it.disconnect()}
+myRobot.disconnect()
