@@ -1,6 +1,15 @@
 import javafx.scene.transform.Affine;
 import javafx.application.Platform;
 
+def field = ScriptingEngine.gitScriptRun(
+            "https://github.com/WPIRoboticsEngineering/RBELabCustomParts.git", // git location of the library
+            "2002/2002 Field/2002 Field STL.STL" , // file to load
+            null
+            )
+            .rotx(-90)
+            .toXMin()
+            .toYMin()
+            .toZMin()
 // call another script that will create the robot object and return it. 
 def myRobot = ScriptingEngine.gitScriptRun(
             "https://gist.github.com/fd1602bce81ca9096db3f28648b3d312.git", // git location of the library
@@ -15,7 +24,7 @@ if(myRobot==null)
 // Create a simple object that will look different when moved to various angles. 
 CSG vitaminFromScript = Vitamins.get("hobbyServo","Dynam");
 // add the object to the 3d window. This can also be done by returning the object.
-BowlerStudioController.setCsg([vitaminFromScript])
+BowlerStudioController.setCsg([vitaminFromScript,field])
 
 // Affine is a frame transformation object used to place objects in the 3d window. 
 // Writing new values will trigger a re-render of the screen. 
