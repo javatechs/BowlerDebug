@@ -22,7 +22,12 @@ if(myRobot==null)
 	return;
 	
 // Create a simple object that will look different when moved to various angles. 
-CSG vitaminFromScript = Vitamins.get("hobbyServo","Dynam");
+CSG vitaminFromScript = ScriptingEngine.gitScriptRun(
+            "https://github.com/WPIRoboticsEngineering/RBELabCustomParts.git", // git location of the library
+            "2000RobotAssembled.stl" , // file to load
+            null
+            ).toZMin()
+            .movez(25.4)
 // add the object to the 3d window. This can also be done by returning the object.
 BowlerStudioController.setCsg([vitaminFromScript,field])
 
@@ -50,10 +55,9 @@ try{
 		double x=0;
 		double y=0;
 		double z=0;
-		// If you would like to visualize the accelorameter then uncomment the next 3 lines
-		//x=-printData[0]
-		//y=-printData[1]
-		//z=-printData[2]
+		x=printData[12]
+		y=printData[13]
+		z=printData[14]
 		// Conver from Euler angles to frame transformation
 		TransformNR newLoc = new TransformNR(x,y,z,new RotationNR(	printData[9],	-printData[11],	printData[10]	))
 		// copy frame transformation into the object manipulatyor
