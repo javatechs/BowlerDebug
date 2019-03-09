@@ -59,7 +59,7 @@ try{
 		y=printData[13]
 		z=printData[14]
 		// Conver from Euler angles to frame transformation
-		TransformNR newLoc = new TransformNR(x,y,z,new RotationNR(	printData[9],	-printData[11],	printData[10]	))
+		TransformNR newLoc = new TransformNR(x,y,z,new RotationNR(	-printData[9],	-printData[11],	-printData[10]	))
 		// copy frame transformation into the object manipulatyor
 		// Platform.runlater uses the UI thread to do the write to prevent UI lockup
 		Platform.runLater( {TransformFactory.nrToAffine(newLoc,manip)})
