@@ -10,6 +10,9 @@ def field = ScriptingEngine.gitScriptRun(
             .toXMin()
             .toYMin()
             .toZMin()
+            .movez(-26)
+field=field.movex(-field.getTotalX()/2)
+		.movey(-field.getTotalY()/2)
 // call another script that will create the robot object and return it. 
 def myRobot = ScriptingEngine.gitScriptRun(
             "https://gist.github.com/fd1602bce81ca9096db3f28648b3d312.git", // git location of the library
@@ -27,7 +30,6 @@ CSG vitaminFromScript = ScriptingEngine.gitScriptRun(
             "2000RobotAssembled.stl" , // file to load
             null
             ).toZMin()
-            .movez(25.4)
 // add the object to the 3d window. This can also be done by returning the object.
 BowlerStudioController.setCsg([vitaminFromScript,field])
 
