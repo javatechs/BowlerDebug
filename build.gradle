@@ -25,10 +25,26 @@ dependencies {
     implementation 'com.google.guava:guava:28.0-jre'
 
 		// BowlerStudio jar
-//		implementation files('/usr/share/bowlerstudio/BowlerStudio.jar')
+		implementation files('/usr/share/bowlerstudio/BowlerStudio.jar')
+		// TODO Add project references: https://github.com/CommonWealthRobotics/BowlerStudio/blob/master/build.gradle#L126
 //		implementation 'BowlerStudio:0.33.3'
     implementation 'com.neuronrobotics:SimplePacketComsJava:0.12.0'
+
+    implementation 'org.hid4java:hid4java:0.5.0'
     implementation 'gov.nist.math:jama:1.0.2'
+    implementation 'org.fxmisc.richtext:richtextfx:0.6'
+
+    implementation 'org.reactfx:reactfx:2.0-SNAPSHOT'
+
+    implementation 'org.codehaus.groovy:groovy:2.3.7';
+//make grapes work
+    implementation 'org.apache.ivy:ivy:2.2.0'
+
+    implementation 'org.controlsfx:controlsfx:8.0.6'
+    implementation 'commons-lang:commons-lang:2.6'
+    implementation 'commons-codec:commons-codec:1.7'
+    //...
+    implementation 'com.neuronrobotics:CHDK-PTP-Java:0.5.3-SNAPSHOT'
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
