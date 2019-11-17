@@ -24,10 +24,12 @@ dependencies {
     // This dependency is used internally, and not exposed to consumers on their own compile classpath.
     implementation 'com.google.guava:guava:28.0-jre'
 
-		// BowlerStudio jar
-		implementation files('/usr/share/bowlerstudio/BowlerStudio.jar')
-		// TODO Add project references: https://github.com/CommonWealthRobotics/BowlerStudio/blob/master/build.gradle#L126
-//		implementation 'BowlerStudio:0.33.3'
+    // BowlerStudio jar
+    implementation files('/usr/share/bowlerstudio/BowlerStudio.jar')
+//    implementation 'BowlerStudio:0.33.3'
+
+    // Project references include those from:
+    // https://github.com/CommonWealthRobotics/BowlerStudio/blob/master/build.gradle#L126
     implementation 'com.neuronrobotics:SimplePacketComsJava:0.12.0'
 
     implementation 'org.hid4java:hid4java:0.5.0'
@@ -37,14 +39,51 @@ dependencies {
     implementation 'org.reactfx:reactfx:2.0-SNAPSHOT'
 
     implementation 'org.codehaus.groovy:groovy:2.3.7';
-//make grapes work
     implementation 'org.apache.ivy:ivy:2.2.0'
 
     implementation 'org.controlsfx:controlsfx:8.0.6'
     implementation 'commons-lang:commons-lang:2.6'
     implementation 'commons-codec:commons-codec:1.7'
-    //...
+    implementation 'org.kohsuke.stapler:stapler:1.237'
+    implementation 'org.eclipse.jgit:org.eclipse.jgit:4.0.1.201506240215-r'
+    implementation 'com.squareup.okhttp:okhttp-urlconnection:2.0.0'
+    implementation 'org.kohsuke:wordnet-random-name:1.2'
+    implementation 'org.mockito:mockito-all:1.9.5'
+
+    implementation 'com.infradna.tool:bridge-method-injector:1.14'
+    implementation 'org.kohsuke:github-api:1.66'
+    implementation 'com.miglayout:miglayout-swing:4.2'
+    implementation 'commons-io:commons-io:2.4'
+    implementation 'org.python:jython:2.5.3'
+    implementation 'org.python:jython-standalone:2.5.2'
+    implementation 'org.clojure:clojure:1.8.0'
+    // jetty server
+    implementation "org.eclipse.jetty:jetty-server:9.0.2.v20130417"
+    implementation "org.eclipse.jetty:jetty-servlet:9.0.2.v20130417"
+    implementation "org.eclipse.jetty:jetty-servlets:9.0.2.v20130417"
+    implementation "org.eclipse.jetty:jetty-webapp:9.0.2.v20130417"
+    implementation "javax.servlet:javax.servlet-api:3.1.0"
+
+    implementation 'java3d:vecmath:1.3.1'
+    implementation 'org.slf4j:slf4j-simple:1.6.1'
     implementation 'com.neuronrobotics:CHDK-PTP-Java:0.5.3-SNAPSHOT'
+    implementation 'com.neuronrobotics:WalnutiQ:2.3.3'
+
+    implementation 'jexcelapi:jxl:2.4.2'
+    implementation 'de.huxhorn.sulky:de.huxhorn.sulky.3rdparty.jlayer:1.0'
+    implementation 'com.google.code.gson:gson:2.5'
+    implementation 'org.jsoup:jsoup:1.8.3'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.1'
+
+    implementation 'javax.media:jmf:2.1.1e'
+    implementation 'com.github.kurbatov:firmata4j:2.3.4.1'
+
+    implementation 'jfree:jfreechart:1.0.12'
+    implementation 'org.dockfx:DockFX:0.1.12'
+    implementation 'org.apache.xmlrpc:xmlrpc-client:3.1.3'
+    implementation 'com.fifesoft:rsyntaxtextarea:2.6.0'
+    implementation 'org.apache.xmlgraphics:batik-svggen:1.7'
+    implementation 'org.axsl.org.w3c.dom.svg:svg-dom-java:1.1'
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
