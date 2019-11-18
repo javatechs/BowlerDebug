@@ -26,7 +26,7 @@ dependencies {
 
     // BowlerStudio jar
     implementation files('/usr/share/bowlerstudio/BowlerStudio.jar')
-//    implementation 'BowlerStudio:0.33.3'
+    implementation 'com.neuronrobotics:java-bowler:3.27.0'
 
     // Project references include those from:
     // https://github.com/CommonWealthRobotics/BowlerStudio/blob/master/build.gradle#L126
