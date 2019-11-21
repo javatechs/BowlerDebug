@@ -1,5 +1,7 @@
 #Using an Eclipse Project to Debug Bowler Studio code
-This project was created to debug Bowler Studio code and libraries.
+This project was created to:
+- Debug Bowler Studio code and libraries.
+- Contain groovy examples
 
 ## Example: Running Bowler Studio in debug
 1. First create a debug configuration.
@@ -22,9 +24,12 @@ BowlerSpeaks.groovy.
 ## Example: [DialogExample.groovy](src/main/groovy/DialogExample.groovy)
 This is an example of a simple Groovy dialog in Bowler Studio.
 
+It includes an call to java code in 'ExampleLibrary' class.
+
 1. in Bowler Studio, select the BowlerDebug file DialogExample.groovy. 
 1. When the script appears, press run.
-
+1. For extra credit, try setting a break point in 
+   ExampleLibrary's someLibraryMethod() and rerun the script.
 
 ## Example: [BNO055Visualizer.groovy](src/main/groovy/BNO055Visualizer.groovy)
 Visualize the BNO055 IMU using SimplePacketComs over UDP.
