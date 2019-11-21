@@ -14,12 +14,16 @@ def field = ScriptingEngine.gitScriptRun(
 field=field.movex(-field.getTotalX()/2)
 		.movey(-field.getTotalY()/2)
 // call another script that will create the robot object and return it. 
+
 def myRobot = ScriptingEngine.gitScriptRun(
-            "https://gist.github.com/fd1602bce81ca9096db3f28648b3d312.git", // git location of the library
+//            "https://gist.github.com/fd1602bce81ca9096db3f28648b3d312.git", // git location of the library
+            "https://gist.github.com/javatechs/42f81b7e2d9d03712d79068d9078e249.git", // My Gist
             "LoadIMUServer.groovy" , // file to load
             // Pass the name of the device. This needs to match what was written to the device in Arduino
-            ["IMU-Team21"]
+//            ["IMU-Team21"]
+            ["hidDevice"]
             )
+
 // If no robot exists, return and do nothing
 if(myRobot==null)
 	return;
