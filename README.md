@@ -1,4 +1,4 @@
-#Using an Eclipse Project to Debug Bowler Studio code
+# Using an Eclipse Project to Debug Bowler Studio code
 This project was created to:
 - Debug Bowler Studio code and libraries.
 - Contain groovy examples
