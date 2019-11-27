@@ -30,7 +30,7 @@ dependencies {
 
     // Project references include those from:
     // https://github.com/CommonWealthRobotics/BowlerStudio/blob/master/build.gradle#L126
-    implementation 'com.neuronrobotics:SimplePacketComsJava:0.12.0'
+    implementation 'com.neuronrobotics:SimplePacketComsJava:0.13.1'
 
     implementation 'org.hid4java:hid4java:0.5.0'
     implementation 'gov.nist.math:jama:1.0.2'
