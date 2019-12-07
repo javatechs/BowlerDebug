@@ -25,12 +25,13 @@ dependencies {
     implementation 'com.google.guava:guava:28.0-jre'
 
     // BowlerStudio jar
-    implementation files('/usr/share/bowlerstudio/BowlerStudio.jar')
-    implementation 'com.neuronrobotics:java-bowler:3.27.0'
+//    implementation files('/usr/share/bowlerstudio/BowlerStudio.jar')
+    implementation files('/home/fdou/bin/BowlerStudioInstall/0.34.1/BowlerStudio.jar')
+//    implementation 'com.neuronrobotics:java-bowler:3.27.0'
 
     // Project references include those from:
     // https://github.com/CommonWealthRobotics/BowlerStudio/blob/master/build.gradle#L126
-    implementation 'com.neuronrobotics:SimplePacketComsJava:0.13.1'
+//    implementation 'com.neuronrobotics:SimplePacketComsJava:0.12.0'
 
     implementation 'org.hid4java:hid4java:0.5.0'
     implementation 'gov.nist.math:jama:1.0.2'
@@ -51,7 +52,7 @@ dependencies {
     implementation 'org.mockito:mockito-all:1.9.5'
 
     implementation 'com.infradna.tool:bridge-method-injector:1.14'
-    implementation 'org.kohsuke:github-api:1.66'
+//    implementation 'org.kohsuke:github-api:1.66'
     implementation 'com.miglayout:miglayout-swing:4.2'
     implementation 'commons-io:commons-io:2.4'
     implementation 'org.python:jython:2.5.3'
