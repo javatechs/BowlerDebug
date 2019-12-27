@@ -316,9 +316,9 @@ class Movement {
 }
 
 // Do something!
+Movement movement = new Movement(base)
+println "Now move some links"
 if(args==null) {
-	Movement movement = new Movement(base)
-	println "Now move some links"
 //	BowlerStudio.speak("Action")
 
 //	movement.shakeit(movement.rr)
@@ -367,13 +367,13 @@ if(args==null) {
 //	ThreadUtil.wait(500)
 //	movement.no2(10, 1)
 //	ThreadUtil.wait(500)
-	movement.no2(10, 15)
+//	movement.no2(10, 15)
 	movement.nod(12)
 	movement.nod(12)
 	movement.nod(12)
 	movement.nod(12)
 	return null;
-else {
+} else {
 	args.size()
 	println args
 }
