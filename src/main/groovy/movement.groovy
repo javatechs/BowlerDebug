@@ -124,25 +124,13 @@ class Movement {
 		}
 	}
 	
-	public void printLink(AbstractLink link) {
-		println "Name: " + link.getLinkConfiguration().getName()
-		println "Upper pan limit: " + link.getUpperLimit()
-		println "Lower pan limit: " + link.getLowerLimit()
-		println "Offset/home: " + link.getHome()
-		println "Current pos: " + link.getCurrentPosition()
-		println "Current engr units: " + link.getCurrentEngineeringUnits()
-		println ""
-	}
 	/**
 	 *
-	 * @param head
+	 * @param waitMS
+	 * @param iterations
 	 */
-	public void nod() {
-		int waitMS = 15
-		nod(waitMS)
-	}
-	public void nod(int waitMS) {
-		for (int i=0; i<2; i++) {
+	public void nod(int waitMS, int iterations) {
+		for (int i=0; i<iterations; i++) {
 			// Alert
 			angleInterpolation(head, HeadTail_TILT, -30, waitMS)
 			double curpos = head.getAbstractLink(HeadTail_TILT).getCurrentEngineeringUnits()
@@ -151,13 +139,11 @@ class Movement {
 			angleInterpolation(head, HeadTail_TILT, curpos, 0.0, waitMS)
 		}
 	}
-	public void wag() {
-		int waitMS = 25
-		wag(waitMS, 2)
-	}
-	public void wag(int waitMS) {
-		wag(waitMS, 2)
-	}
+	/**
+	 * 
+	 * @param waitMS
+	 * @param iterations
+	 */
 	public void wag(int waitMS, final int iterations) {
 		angleInterpolation(tail, HeadTail_TILT, -11, waitMS)
 		printLink(tail.getAbstractLink(HeadTail_PAN))
@@ -176,10 +162,10 @@ class Movement {
 		angleInterpolation(tail, HeadTail_TILT, 0, 25)
 	}
 	
-	public void no() {
-		int waitMS = 15
-		no(waitMS)
-	}
+	/**
+	 * 
+	 * @param waitMS
+	 */
 	public void no(int waitMS) {
 		printLink(head.getAbstractLink(HeadTail_TILT))
 		angleInterpolation(head, HeadTail_TILT, -20, waitMS)
@@ -216,11 +202,8 @@ class Movement {
 	}
 	/**
 	 * 
+	 * @param waitMS number of milliseconds per movement
 	 */
-	public void sit() {	
-		int waitMS = 20
-		sit(waitMS)
-	}
 	public void sit(int waitMS) {	
 		// *****
 		// HEAD & TAIL
@@ -313,13 +296,38 @@ class Movement {
 		angleInterpolation(leg, TILT,0, waitMS)
 		angleInterpolation(leg, ELBOW,0,waitMS)
 	}
+	/**
+	 * 
+	 */
+	public void printLink(AbstractLink link) {
+		println "Name: " + link.getLinkConfiguration().getName()
+		println "Upper pan limit: " + link.getUpperLimit()
+		println "Lower pan limit: " + link.getLowerLimit()
+		println "Offset/home: " + link.getHome()
+		println "Current pos: " + link.getCurrentPosition()
+		println "Current engr units: " + link.getCurrentEngineeringUnits()
+		println ""
+	}
+}
+
+/**
+ * @param tokens
+ * @param pos
+ * @param _default
+ */
+def parseInt(String[] tokens, int pos, int _default) {
+	int retVal = _default;
+	if (tokens.length>pos) {
+		retVal = Integer.parseInt(tokens[pos]);
+	}
+	return retVal;
 }
 
 // Do something!
 Movement movement = new Movement(base)
 println "Now move some links"
 if(args==null) {
-//	BowlerStudio.speak("Action")
+	BowlerStudio.speak("Action")
 
 //	movement.shakeit(movement.rr)
 //	movement.shakeit(movement.rl)
@@ -340,40 +348,47 @@ if(args==null) {
 //	movement.stampFoot(movement.fl)
 //	movement.stampFoot(movement.fr)
 
-//	movement.nod()
-//	movement.nod()
-//	movement.wag()
-//	movement.no()
 
-//	movement.nod(50)
-//	movement.no(20)
-//	movement.nod(12)
-//	movement.nod(12)
-//	movement.nod(12)
-//	movement.wag(8,8)
-//	movement.wag(20)
-//	movement.wag(20)
-//	movement.no(10)
-//	movement.no(15)
-//	movement.no(20)
-
-//	movement.sit(50);
-//	ThreadUtil.wait(500)
-
+//	Typical
+	movement.no2(10, 15)
 //	BowlerKernel.speak("Watch me sit")
-//	movement.sit(4);
-//	BowlerKernel.speak("That was some kind of awl right, eh what???")
-
-//	ThreadUtil.wait(500)
-//	movement.no2(10, 1)
-//	ThreadUtil.wait(500)
+//	movement.no(20)
 //	movement.no2(10, 15)
-	movement.nod(12)
-	movement.nod(12)
-	movement.nod(12)
-	movement.nod(12)
+//	movement.wag(10, 5)
+//	movement.nod(12)
+//	movement.sit(10);
 	return null;
 } else {
-	args.size()
-	println args
+	// Argument format
+	// e.g. nod/2/2,
+//	args.size()
+//	println args
+	for (int i=0; i<args.size(); i++) {
+		tokens = args[i].split("/");
+		if ("no".equals(tokens[0])) {
+			waitMS = parseInt(tokens, 1, 15);
+			movement.no(waitMS);
+		}
+		else if ("nod".equals(tokens[0])) {
+			waitMS = parseInt(tokens, 1, 15);
+			iterations = parseInt(tokens, 2, 1);
+			movement.nod(waitMS, iterations);
+		}
+		else if ("sit".equals(tokens[0])) {
+			waitMS = parseInt(tokens, 1, 20);
+			movement.sit(waitMS);
+		}
+		else if ("wag".equals(tokens[0])) {
+			waitMS = parseInt(tokens, 1, 15);
+			iterations = parseInt(tokens, 2, 1);
+			movement.wag(waitMS, iterations);
+		}
+		else if ("speak".equals(tokens[0])) {
+			text = "Meow!"
+			if (tokens.length>1) {
+				text = tokens[1];
+			}
+			BowlerKernel.speak(text)
+		}
+	}
 }
