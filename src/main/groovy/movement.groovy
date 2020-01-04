@@ -308,6 +308,27 @@ class Movement {
 		println "Current engr units: " + link.getCurrentEngineeringUnits()
 		println ""
 	}
+	/**
+	 * 
+	 * @param leg
+	 * @return
+	 */
+	def convertStrToLeg(String leg) {
+		def retVal = null;
+		if ("rearleft".equals(leg)) {
+			retVal = rl;
+		}
+		else if ("rearright".equals(leg)) {
+			retVal = rr;
+		}
+		else if ("frontleft".equals(leg)) {
+			retVal = fl;
+		}
+		else if ("frontright".equals(leg)) {
+			retVal = fr;
+		}
+		return retVal;
+	}
 }
 
 /**
@@ -328,27 +349,6 @@ Movement movement = new Movement(base)
 println "Now move some links"
 if(args==null) {
 	BowlerStudio.speak("Action")
-
-//	movement.shakeit(movement.rr)
-//	movement.shakeit(movement.rl)
-//	movement.shakeit(movement.rl)
-//	movement.shakeit(movement.rr)
-//	movement.stampFoot(movement.fl)
-//	movement.stampFoot(movement.fr)
-//	movement.stampFoot(movement.rl)
-//	movement.stampFoot(movement.rr)
-
-//	for (int i=0; i<6; i++) {
-//		movement.stampFoot(movement.fl)
-//	}
-//	movement.stampFoot(movement.fl)
-//	movement.stampFoot(movement.fr)
-//	movement.stampFoot(movement.fl)
-//	movement.stampFoot(movement.fr)
-//	movement.stampFoot(movement.fl)
-//	movement.stampFoot(movement.fr)
-
-
 //	Typical
 	movement.no2(10, 15)
 //	BowlerKernel.speak("Watch me sit")
@@ -357,6 +357,8 @@ if(args==null) {
 //	movement.wag(10, 5)
 //	movement.nod(12)
 //	movement.sit(10);
+//	movement.shakeit(movement.rr)
+//	movement.stampFoot(movement.fl)
 	return null;
 } else {
 	// Argument format
@@ -389,6 +391,19 @@ if(args==null) {
 				text = tokens[1];
 			}
 			BowlerKernel.speak(text)
+		}
+		else if ("shakeit".equals(tokens[0])) {
+			println "Got Shakeit"
+			if (tokens.length>1) {
+				leg = movement.convertStrToLeg(tokens[1])
+				if (null!=leg) movement.shakeit(leg);
+			}
+		}
+		else if ("stomp".equals(tokens[0])) {
+			if (tokens.length>1) {
+				leg = movement.convertStrToLeg(tokens[1])
+				if (null!=leg) movement.stampFoot(leg);
+			}
 		}
 	}
 }
