@@ -17,11 +17,10 @@ import com.neuronrobotics.sdk.common.*;
 import edu.wpi.SimplePacketComs.AbstractSimpleComsDevice;
 import edu.wpi.SimplePacketComs.PacketType;
 import edu.wpi.SimplePacketComs.BytePacketType;
-import edu.wpi.SimplePacketComs.FloatPacketType;
 import edu.wpi.SimplePacketComs.device.gameController.GameController;
 import edu.wpi.SimplePacketComs.device.UdpDevice;
 import edu.wpi.SimplePacketComs.phy.UDPSimplePacketComs;
-
+import com.neuronrobotics.sdk.common.DeviceManager;
 
 if(args == null) {
 	args = ["Game*"]
@@ -57,7 +56,7 @@ def device = DeviceManager.getSpecificDevice(name, {
 	}
 });
 
-println "Returning device: "+device
+println "Device: "+device
 if (null!=device) {
 	println " Name: "+device.getName();
 }
@@ -74,30 +73,22 @@ println ""
 //		- Set packet to waitToSend (if desired)
 //		NOW add polling packet to device
 //
-//def packetType2 = device.getPacket(1970)
-//packetType2.waitToSendMode();
 
 def packetType = device.getPacket(1985)
 if (null==packetType) {
 	println "Didn't find an existing polling packet"
 	try {
 		packetType = new BytePacketType(1985, 64);
-		// Set the packet to waitToSend,
-		// before adding a polling packet
-//		packetType.waitToSendMode();
 		device.addPollingPacket(packetType);
 		println "Added a polling packet."
 	} catch (Exception ex) {
 		println "Exception thrown while attempting to add a polling packet."
+		BowlerStudio.printStackTrace(ex)
 	}
 }
 else {
 	println "Polling packet existed."
 }
-// Set initial packet
-def num = packetType.getDownstream();
-num[0]=253;
-packetType.setDownstream(num);
 //
 //	Add event handler for polling packet
 //		First remove existing event handlers
@@ -105,31 +96,16 @@ packetType.setDownstream(num);
 //
 
 // Remove old event handlers for our ID
-//ArrayList<Runnable> arr;
-//arr = device.getEvents((int)1985);
-//println arr.size()
-String nm;
-nm = device.getName();
-device.isTimedOut()
-println "nm: "+nm
 device.removeAllEvents(1985)
-//arr = device.getEvents((int)1985);
-//println arr.size()
-nm= device.getName();
-device.isTimedOut()
-println "nm: "+nm
 
 Runnable eventHandler = new Runnable() {
 	byte[] status = new byte[64];
 	byte[] data = new byte[64];
-	byte curSeqNum = 0xFD;
+	byte curSeqNum = 0x01;
 	String cmd = "";
 	String part = "";
-	boolean doit = true;
 
 	public void run() {
-//		// Indicate run() called
-//		println "."
 //		device.readBytes(1985, data);
 		data = device.readBytes(1985);
 		// Get msg seq #
@@ -137,9 +113,8 @@ Runnable eventHandler = new Runnable() {
 		boolean isMulti = (data[1]==1);
 		boolean gotNewCommand = (curSeqNum == msgSeqNum)
 		//
-		println "msgSeqNum: " + (int)(msgSeqNum&0xff) + "; curSeqNum: " + (int)(curSeqNum&0xff)
-		println data
-//		Thread.sleep(3000);
+//		println "msgSeqNum: " + (int)(msgSeqNum&0xff) + "; curSeqNum: " + (int)(curSeqNum&0xff)
+//		println data
 		if (gotNewCommand) {
 			String[] tokens;
 			String url;
@@ -208,46 +183,75 @@ Runnable eventHandler = new Runnable() {
 		}
 		// Set sequence # to be parsed
 		status[0] = curSeqNum;
-		if (isMulti&&doit) {
-			doit = false;
-			sleep(1000)
-			println "2nd oneshot"
-//			device.getPacket(1985).oneShotMode();
-		}
 		// Write bytes
 		device.writeBytes(1985, status);
-//		Thread.sleep(3000);
-//		println "end of loop"
+//		Thread.sleep(1000);
 	}
 }
 // Add event handler for this ID
 device.addEvent(1985, eventHandler);
 
 //
-// Controller loop
-//
+def cat = ScriptingEngine.gitScriptRun(
+	"https://github.com/OperationSmallKat/SmallKat_V2.git", 
+	"loadRobot.groovy",
+        [
+			"https://github.com/javatechs/greycat.git"
+			,"MediumKat.xml"
+			,device.getName()
+			,"hidDevice"
+		]
+	);
+
+double toSeconds=0.1
+
 println "Starting controller loop..."
-double sleepSeconds=1.0 	//	Converted to ms
-int iteration = 0;				//	Loop counter
+while (!Thread.interrupted() ){
+	Thread.sleep((long)(toSeconds*1000))
+	byte[] data = device.readBytes(1970);//device.getData()
 
-while (!Thread.interrupted() ) {
-	iteration++;
-	Thread.sleep((long)(sleepSeconds*1000))
-	data = device.getData()
+	double xdata = data[4]
+	double rzdata = data[3]
+	double rxdata = data[1]
+	double rydata = data[2]
+	//
+	if(xdata<0)
+		xdata+=256
+	if(rzdata<0)
+		rzdata+=256
+	if(rxdata<0)
+		rxdata+=256
+	if(rydata<0)7
+		rydata+=256
 
-	double xdata = data[3]
-	double rzdata = data[2]
-	double rxdata = data[0]
-	double rydata = data[1]
-//	println "!!"+iteration+"!!"+data[0] + ":"+data[1] + ":"+data[2] + ":"+data[3]
-	if (iteration==3) {
-		println "Setting one shot"
-//		device.getPacket(1985).oneShotMode();
+	double scale = 0.15
+	double displacement = 40*(scale*(xdata/255.0)-scale/2)
+	double displacementY =-10*(scale*(rxdata/255.0)-scale/2)
+	
+	double rot =((scale*2.0*rzdata/255.0)-scale)*-2.5
+	double rotx =((rxdata/255.0)-scale/2)*5
+	double roty =((rydata/255.0)-scale/2)*-5
+	if(Math.abs(displacement)<0.1 ){
+		displacement=0
 	}
-	// Remove event test
-//	if (iteration==2) {
-//		device.removeAllEvents(1985)
-//	}
+	if( Math.abs(rot)<0.1){
+		rot=0
+	}
+	try{
+		if(Math.abs(displacement)>0.16 || Math.abs(rot)>0.16 ||Math.abs(displacementY)>0.16  ){
+			println "displacement "+displacement+" rot "+rot+" straif = "+displacementY
+//			println data
+			
+			TransformNR move = new TransformNR(displacement,displacementY,0,new RotationNR(rotx,rot,roty))
+			cat.DriveArc(move, toSeconds);
+		}
+		if(Math.abs(rotx)>2 || Math.abs(roty)>2){
+			//println "tilt "+rotx+" rot "+roty
+			TransformNR move = new TransformNR(displacement,displacementY,0,new RotationNR(rotx,0,roty))
+			//cat.getWalkingDriveEngine().pose(move)
+		}
+	}catch(Throwable t){		
+		BowlerStudio.printStackTrace(t)
+	}
 }
-
 return device
