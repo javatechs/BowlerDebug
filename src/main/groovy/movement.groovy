@@ -1,3 +1,14 @@
+import javax.media.bean.playerbean.MediaPlayer
+
+@GrabResolver(name='nr', root='https://oss.sonatype.org/content/repositories/staging/')
+//@Grab(group='com.mpatric', module='mp3agic', version='0.9.1')
+
+import java.io.File;
+import java.net.URL;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.Clip;
+
 import org.apache.commons.io.IOUtils;
 
 import com.neuronrobotics.bowlerstudio.BowlerStudio
@@ -329,6 +340,21 @@ class Movement {
 		}
 		return retVal;
 	}
+	public void playFile(String fileStr) {
+		AudioInputStream audioIn;
+		boolean isLocalFile = fileStr.startsWith("file://");
+		if (isLocalFile) {
+			File fl = new File(fileStr);
+			audioIn = AudioSystem.getAudioInputStream(fl);
+		}
+		else {
+			URL url = new URL(fileStr);
+			audioIn = AudioSystem.getAudioInputStream(url);
+		}
+		Clip clip = AudioSystem.getClip();
+		clip.open(audioIn);
+		clip.start();
+	}
 }
 
 /**
@@ -350,7 +376,7 @@ println "Now move some links"
 if(args==null) {
 	BowlerStudio.speak("Action")
 //	Typical
-	movement.no2(10, 15)
+//	movement.no2(10, 15)
 //	BowlerKernel.speak("Watch me sit")
 //	movement.no(20)
 //	movement.no2(10, 15)
@@ -391,6 +417,11 @@ if(args==null) {
 				text = tokens[1];
 			}
 			BowlerKernel.speak(text)
+		}
+		else if ("playaudio".equals(tokens[0])) {
+			if (tokens.length>1) {
+				movement.playFile(tokens[1])
+			}
 		}
 		else if ("shakeit".equals(tokens[0])) {
 			println "Got Shakeit"
