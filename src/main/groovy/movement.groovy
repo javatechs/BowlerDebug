@@ -392,7 +392,7 @@ if(args==null) {
 //	args.size()
 //	println args
 	for (int i=0; i<args.size(); i++) {
-		tokens = args[i].split("/");
+		tokens = args[i].split(";");
 		if ("no".equals(tokens[0])) {
 			waitMS = parseInt(tokens, 1, 15);
 			movement.no(waitMS);
