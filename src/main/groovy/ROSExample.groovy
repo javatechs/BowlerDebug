@@ -18,7 +18,7 @@ import org.eclipse.jetty.util.HttpCookieStore;
 //
 // CODE: java_rosbridge
 //
-String host = "ws://10.0.0.190:9090";
+String host = "ws://localhost:9090";
 RosBridge bridge = new RosBridge();
 println "Attempt connection to rosbridge websocket"
 
