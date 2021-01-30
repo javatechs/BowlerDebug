@@ -1,4 +1,9 @@
 @Grab('edu.brown.cs.burlap:java_rosbridge:2.0.0')
+@Grab('org.eclipse.jetty:jetty-server:9.4.36.v20210114')
+@Grab('org.eclipse.jetty:jetty-servlet:9.4.36.v20210114')
+@Grab('org.eclipse.jetty:jetty-servlets:9.4.36.v20210114')
+@Grab('org.eclipse.jetty:jetty-webapp:9.4.36.v20210114')
+@Grab('org.eclipse.jetty.websocket:websocket-client:9.4.36.v20210114')
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -52,13 +57,14 @@ for(int i = 0; i < 10; i++) {
 //    }
 //);
 
-println "Connected: "+bridge.hasConnected()
-Method[] methods = RosBridge.class.getMethods()
-for (int i = 0; i < methods.length; i++) {
-	println methods[i].toString()
-}
+//// Enumerate API methods
+//println "Connected: "+bridge.hasConnected()
+//Method[] methods = RosBridge.class.getMethods()
+//for (int i = 0; i < methods.length; i++) {
+//	println methods[i].toString()
+//}
 
 //Thread.sleep(2500);
+// NOTE! closeConnection() not found in this grape
 //bridge.closeConnection()
 
-int x = 1
