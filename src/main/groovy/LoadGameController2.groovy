@@ -1,5 +1,11 @@
 @GrabResolver(name='nr', root='https://oss.sonatype.org/content/repositories/staging/')
 @Grab(group='com.neuronrobotics', module='SimplePacketComsJava', version='0.12.0')
+@Grab('edu.brown.cs.burlap:java_rosbridge:2.0.0')
+@Grab('org.eclipse.jetty:jetty-server:9.4.36.v20210114')
+@Grab('org.eclipse.jetty:jetty-servlet:9.4.36.v20210114')
+@Grab('org.eclipse.jetty:jetty-servlets:9.4.36.v20210114')
+@Grab('org.eclipse.jetty:jetty-webapp:9.4.36.v20210114')
+@Grab('org.eclipse.jetty.websocket:websocket-client:9.4.36.v20210114')
 
 /**
  * Client Android Game Controller.
@@ -13,6 +19,7 @@
 import com.neuronrobotics.bowlerstudio.scripting.ScriptingEngine;
 import com.neuronrobotics.sdk.addons.kinematics.imu.*;
 import com.neuronrobotics.sdk.common.*;
+import com.neuronrobotics.sdk.common.DeviceManager;
 
 import edu.wpi.SimplePacketComs.AbstractSimpleComsDevice;
 import edu.wpi.SimplePacketComs.PacketType;
@@ -20,7 +27,25 @@ import edu.wpi.SimplePacketComs.BytePacketType;
 import edu.wpi.SimplePacketComs.device.gameController.GameController;
 import edu.wpi.SimplePacketComs.device.UdpDevice;
 import edu.wpi.SimplePacketComs.phy.UDPSimplePacketComs;
-import com.neuronrobotics.sdk.common.DeviceManager;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import ros.Publisher;
+import ros.RosBridge;
+import ros.RosListenDelegate;
+import ros.SubscriptionRequestMsg;
+import ros.msgs.std_msgs.PrimitiveMsg;
+import ros.tools.MessageUnpacker;
+
+import org.eclipse.jetty.util.LazyList;
+import org.eclipse.jetty.util.HttpCookieStore;
+import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.annotations.WebSocket
+import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
+import org.eclipse.jetty.websocket.client.WebSocketClient;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.*;
 
 if(args == null) {
 	args = ["Game*"]
@@ -97,13 +122,58 @@ else {
 
 // Remove old event handlers for our ID
 device.removeAllEvents(1985)
+//
+// Execute command
+//
+def execCmd(String cmd) {
+	ArrayList<String> progArgs = new ArrayList<>();
 
+	// Parse and run
+	tokens = cmd.split(",");
+	println "tokens"+tokens
+	if (tokens.length>0) {
+		url = tokens[0];
+		println "  URL: " + url;
+	}
+	// Create args
+	boolean isLocalFile = url.startsWith("file://");
+	int argsStart = ((isLocalFile)?1:2);
+	if (tokens.length>argsStart) {
+		progArgs = Arrays.copyOfRange(tokens, argsStart, tokens.length);
+	}
+	println "\n  progArgs: " + progArgs
+	if (tokens.length>1) {
+		if (!isLocalFile) {
+			prog = tokens[1];
+			println "  prog: " + tokens[1];
+		}
+		// Run script
+		try {
+//						Thread.sleep(3000);
+			def retVal;
+			if (!isLocalFile) {
+				retVal = ScriptingEngine.gitScriptRun(url, prog, progArgs);
+			}
+			else {
+				// e.g. "file:///home/user/somefile.groovy"
+				println "Local file name: "+url.substring(7)
+				File file = new File(url.substring(7));
+				retVal = ScriptingEngine.inlineFileScriptRun(file, progArgs);
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+	else {
+		println "No program. Not enough parameters. Count = " + tokens.length
+	}
+}
+//
 Runnable eventHandler = new Runnable() {
 	byte[] status = new byte[64];
 	byte[] data = new byte[64];
 	byte curSeqNum = 0x01;
 	String cmd = "";
-	String part = "";
 
 	public void run() {
 //		device.readBytes(1985, data);
@@ -119,57 +189,20 @@ Runnable eventHandler = new Runnable() {
 			String[] tokens;
 			String url;
 			String prog; // = "src/main/groovy/DialogExample.groovy";
-			ArrayList<String> progArgs = new ArrayList<>();
+
 			// Append command
 			String part = new String(data, 2, data.length-2);
 			part = part.trim();
 			println "cmd: " + cmd
 			println "part: "+ part
 			cmd = cmd + part;
-			println "cmd+part: " + cmd
+			println "cmd+part: " + cmd + " multi: "+ isMulti
 			if (  (!isMulti)
 			   && (cmd!=null)
 			   && (cmd.length()>0)
 			   ) {
-				// Parse and run
-				tokens = cmd.split(",");
-				println "tokens"+tokens
-				if (tokens.length>0) {
-					url = tokens[0];
-					println "  URL: " + url;
-				}
-				// Create args
-				boolean isLocalFile = url.startsWith("file://");
-				int argsStart = ((isLocalFile)?1:2);
-				if (tokens.length>argsStart) {
-					progArgs = Arrays.copyOfRange(tokens, argsStart, tokens.length);
-				}
-				println "\n  progArgs: " + progArgs
-				if (tokens.length>1) {
-					if (!isLocalFile) {
-						prog = tokens[1];
-						println "  prog: " + tokens[1];
-					}
-					// Run script
-					try {
-//						Thread.sleep(3000);
-						def retVal;
-						if (!isLocalFile) {
-							retVal = ScriptingEngine.gitScriptRun(url, prog, progArgs);
-						}
-						else {
-							// e.g. "file:///home/user/somefile.groovy"
-							println "Local file name: "+url.substring(7)
-							File file = new File(url.substring(7));
-							retVal = ScriptingEngine.inlineFileScriptRun(file, progArgs);
-						}
-					} catch (Exception ex) {
-						ex.printStackTrace();
-					}
-				}
-				else {
-					println "No program. Not enough parameters. Count = " + tokens.length
-				}
+				// Execute command
+				execCmd(cmd)
 				// Clear accumulated command string
 				cmd = "";
 				curSeqNum++;
@@ -203,6 +236,150 @@ def cat = ScriptingEngine.gitScriptRun(
 		]
 	);
 
+// --------------------------------------------------
+// ROSBridge section
+// --------------------------------------------------
+@WebSocket
+class RosBridgePlus extends RosBridge {
+	public boolean isOpen() {
+		boolean retVal = false;
+		if (null!=session) {
+			retVal = session.isOpen();
+		}
+		return retVal;
+	};
+}
+//
+// Open rosbridge connection
+//
+String host = "ws://localhost:9090";
+//RosBridge bridge = new RosBridge();
+RosBridgePlus bridge = new RosBridgePlus();
+println "Attempt connection to rosbridge websocket"
+
+try {
+	bridge.connect(host, true);
+	println "Connected to: "+host
+} catch (Exception e) {
+	println "Exception!"
+	println e
+}
+
+//
+// Read properties file
+//
+Properties prop = new Properties();
+
+// Note! Select local or internet file name. Modify as desired.
+// Form network file name
+String fileName = "https://raw.githubusercontent.com/javatechs/BowlerDebug/master/src/main/groovy/movement.conf"
+// Form local file name
+userHome = System.getProperty("user.home");
+fileName = "file://"+userHome+"/Documents/workspace/BowlerDebug/src/main/groovy/movement.conf"
+println("File name: "+fileName)
+// Open properties file
+URL url = new URL(fileName);
+InputStream input = url.openStream();
+// load properties file
+prop.load(input);
+
+//
+// Subscribe to remo command topic
+//
+// TODO Add connection keep alive
+bridge.subscribe(SubscriptionRequestMsg.generate("/remo_cmd")
+	.setType("std_msgs/String")
+	.setThrottleRate(1)
+	.setQueueLength(1),
+	new RosListenDelegate() {
+		public void receive(JsonNode data, String stringRep) {
+			MessageUnpacker<PrimitiveMsg<String>> unpacker = new MessageUnpacker<PrimitiveMsg<String>>(PrimitiveMsg.class);
+			PrimitiveMsg<String> msg = unpacker.unpackRosMessage(data);
+			// Get command name from message data
+			String str = msg.data;
+			// Replace:
+			//  ' with "
+			str = str.replace("'","\"");
+			//  True with "True"
+			str = str.replace("True","\"True\"");
+			//  False with "False"
+			str = str.replace("False","\"False\"");
+			//  None with "None"
+			str = str.replace("None","\"None\"");
+//			println "mod:"+str
+			JSONObject jo = new JSONParser().parse(str);
+			jo = jo.get("button");
+			String cmd_name = jo.get("command");
+			// Using command name find command in properties
+			String cmd = prop.getProperty(cmd_name);
+			// Execute command
+			if (  (null!=cmd)
+			   && (cmd.length()>0)
+			   ) {
+				execCmd(cmd);
+			}
+			else {
+				println "No or empty command found."
+			}
+		}
+	}
+);
+
+class KeepAlive extends Thread {
+	RosBridgePlus bridge;
+	String host;
+	String pingTopic = "/rosbridge_bowler_keepalive";
+	int intervalMS = 30000;
+	// 
+	public KeepAlive (RosBridgePlus inpBridge, String inpHost) {
+		super();
+		this.bridge = inpBridge;
+		this.host = inpHost;
+	}
+	public void run(){
+		while (true) {
+//			Thread.sleep(intervalMS);
+			// Is connection alive?
+			if (!bridge.isOpen()) {
+				// If connection isn't alive, reconnect
+				println "Reconnecting to rosbridge."
+				try {
+					bridge.connect(host);
+				} catch (Exception e) {
+					println ("Could not connect to rosbridge.")
+					BowlerStudio.printStackTrace(e);
+				}
+			}
+			// Ping rosbridge
+			pingSettings();
+		}
+	}
+	protected void pingSettings() {
+		println "ping!"
+		bridge.subscribe(SubscriptionRequestMsg.generate(pingTopic)
+			.setType("std_msgs/String")
+			.setThrottleRate(1)
+			.setQueueLength(1),
+			new RosListenDelegate() {
+				public void receive(JsonNode data, String stringRep) {
+					MessageUnpacker<PrimitiveMsg<String>> unpacker = new MessageUnpacker<PrimitiveMsg<String>>(PrimitiveMsg.class);
+					PrimitiveMsg<String> msg = unpacker.unpackRosMessage(data);
+					// Grab settings if desired.
+					println "pong"
+				}
+			}
+		);
+		Thread.sleep(intervalMS);
+		// And drop
+		bridge.unsubscribe(pingTopic);
+	}
+}
+KeepAlive keepAlive = new KeepAlive(bridge, host);
+keepAlive.start()
+
+//
+// Controller handler loop
+//
 double toSeconds=0.1
 
 println "Starting controller loop..."
